@@ -1,0 +1,168 @@
+# 05 - Bootstrap: Plain Markdown + Any Agent (Path D)
+
+> **For the agent.** The participant wants a folder of `.md` files that works with whichever agent they use today and whichever agent they switch to tomorrow. No Obsidian, no Notion, no lock-in. Target time: 15 minutes.
+
+---
+
+## Goal
+
+By the end of this doc, the participant has:
+
+1. A plain folder of markdown files with the standard structure
+2. Their agent of choice (Cursor, Windsurf, Cline, Codex, Copilot, or Claude Code) configured to read the conventions
+3. The agent has internalized `CLAUDE.md` / `AGENTS.md` / whichever convention file their agent reads
+4. One real note saved in `Learning/` or `Notes/` with correct frontmatter and at least 2 wiki links
+5. `SETUP.md` in the workshop repo filled in with the vault path and committed
+
+---
+
+## Step 1: Create the folder
+
+Ask where they want it. Good defaults:
+
+- `~/Documents/second-brain`
+- `~/dev/second-brain`
+- `~/notes`
+
+```bash
+TARGET=~/Documents/second-brain
+cp -R /path/to/capracon-second-brain/starter-vault "$TARGET"
+cd "$TARGET"
+```
+
+---
+
+## Step 2: Agent-specific convention files
+
+The starter has `CLAUDE.md` (and a duplicate `AGENTS.md`). For other agents, add the equivalent file. Pick whichever your agent reads:
+
+| Agent | File to create |
+|-------|----------------|
+| Claude Code | `CLAUDE.md` (already there) |
+| Codex / GitHub Copilot CLI / Cline / generic | `AGENTS.md` (already there - duplicate of CLAUDE.md) |
+| Cursor | `.cursorrules` (copy CLAUDE.md contents) |
+| Windsurf | `.windsurfrules` (copy CLAUDE.md contents) |
+| GitHub Copilot (VS Code) | `.github/copilot-instructions.md` (copy CLAUDE.md contents) |
+
+Quick command to duplicate:
+
+```bash
+# Cursor
+cp CLAUDE.md .cursorrules
+
+# Windsurf
+cp CLAUDE.md .windsurfrules
+
+# GitHub Copilot
+mkdir -p .github
+cp CLAUDE.md .github/copilot-instructions.md
+```
+
+---
+
+## Step 3: Skills (Claude Code only)
+
+Four workshop-critical skills ship inside `starter-vault/.claude/skills/` and came along with the Step 1 copy: `obsidian-vault`, `youtube-transcribe`, `skill-creator`, `brainstorming`. Nothing extra to do for the workshop.
+
+**Optional:** if the participant wants Word / PowerPoint / Excel export skills, install globally:
+
+```bash
+npx skills add https://github.com/anthropics/skills --skill docx pptx xlsx -g --agent claude-code -y
+```
+
+For Cursor, Windsurf, Codex, Copilot: the bundled skills will not auto-load. But the core `obsidian-vault` skill content is already embedded in `CLAUDE.md`, so the conventions work regardless. For `youtube-transcribe` and `skill-creator`, the participant can still read the `SKILL.md` files as reference, but they will need to run the `yt-dlp` commands themselves.
+
+---
+
+## Step 4: Open in the agent and load conventions
+
+```bash
+# Claude Code
+claude
+
+# Cursor / Windsurf -> open folder in the editor, start chat
+
+# Codex -> codex in the folder
+```
+
+First prompt to the agent:
+
+> *"Read the conventions file in this folder (CLAUDE.md / AGENTS.md / .cursorrules / etc.) and confirm you understand: folder layout, frontmatter schema, linking rules. Then list the folders you see."*
+
+Verify the agent can recite:
+- The folder structure
+- The frontmatter schema
+- The linking rule (wiki links, 2-3 per note)
+
+If any of those come back wrong, paste the file contents into the chat directly before proceeding.
+
+---
+
+## Step 5: Write the first real note
+
+Same as Path A step 5. Pick something small. Let the agent:
+
+1. Pick folder based on type
+2. Use the right template from `Templates/`
+3. Fill in frontmatter
+4. Add `[[wiki links]]` where the connection is real — not to hit a count. Zero is fine if nothing truly relates yet.
+5. Confirm before writing
+
+---
+
+## Step 6: Verify
+
+```bash
+ls -la Learning/   # or wherever the note landed
+cat "Learning/Your Note.md"
+```
+
+The note should have:
+- YAML frontmatter at the top
+- A H1 title
+- Substantial content that stands on its own
+- At least one meaningful `[[wiki link]]` if the vault has anything related (zero is acceptable if nothing does). No agent-authored paraphrases next to links whose target file does not exist.
+
+---
+
+## Step 7: Record where the vault lives
+
+Open `SETUP.md` in this workshop repo and fill in the **Path D** section (vault path, git remote, which agent config files you created, primary agent). Set `Path: D` at the top and today's date. Delete the other path sections.
+
+```bash
+git add SETUP.md
+git commit -m "chore: record Path D plain-markdown vault coordinates"
+```
+
+Push if the participant has their own remote.
+
+> **Why this step matters.** Path D is deliberately multi-agent. `SETUP.md` lets whichever agent you open next know which folder is the vault and which convention file to read.
+
+---
+
+## Step 8: Hand off to challenges
+
+Go to `docs/06-challenges.md`.
+
+---
+
+## Notes on agent-agnostic use
+
+The whole point of Path D is you can swap agents without rewriting notes. Because:
+
+- Notes are plain `.md` files
+- `[[wiki links]]` are just text - all agents can read them as references
+- Frontmatter is standard YAML - all agents can parse it
+- The conventions file (CLAUDE.md / AGENTS.md / ...) is what teaches any given agent the rules
+
+If you later decide to open the same folder in Obsidian, it "just works" - Obsidian picks up wiki links and frontmatter automatically. Going the other direction (Obsidian vault -> plain folder) also works.
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Agent ignores the conventions | Paste the file into the chat directly. Some agents only load the file after the first message. |
+| Wiki links look like plain text in VS Code | Install the "Markdown All in One" or "Foam" extension. Or just accept it - the links render correctly in Obsidian later. |
+| Multiple agents fighting over conventions | Keep one authoritative file (`CLAUDE.md` or `AGENTS.md`) and make the others symlinks or git-tracked duplicates. |
